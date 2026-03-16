@@ -1,12 +1,13 @@
 #include "bus/Bios.hpp"
 #include <fstream>
 #include <stdexcept>
+#include <cstring>
+#include <format>
 
 namespace slowstation::bus
 {
     /**
-     * @brief Constructor that initializes the BIOS and triggers the loading process.
-     * @param path The filesystem path to the BIOS image.
+     * @brief Constructor that initializes the BIOS ROM from a binary image.
      */
     Bios::Bios(const std::string& path)
     {
@@ -14,8 +15,7 @@ namespace slowstation::bus
     }
 
     /**
-     * @brief Implementation of IMemoryDevice::getSize.
-     * @return The fixed BIOS size of 512KB.
+     * @brief Returns the fixed BIOS ROM size.
      */
     uint32_t Bios::getSize() const
     {
@@ -23,66 +23,53 @@ namespace slowstation::bus
     }
 
     /**
-     * @brief Reads a 32-bit word from the BIOS ROM.
-     * 
-     * Since the PlayStation 1 CPU is Little-Endian, we manually reconstruct 
-     * the 32-bit word from 4 individual bytes. This ensures portability 
-     * across different host architectures (x86, ARM, etc.).
-     * 
-     * @param offset The byte offset into the BIOS data.
-     * @return The 32-bit word at the specified offset.
-     * @throws std::out_of_range If the offset is outside the BIOS boundaries.
+     * @brief Standard 32-bit read from ROM.
+     * Extracts 4 bytes into a 32-bit word using Little-Endian order.
      */
     uint32_t Bios::read32(const uint32_t offset) const
     {
-        // Ensure the read does not exceed the buffer limits (4 bytes required for a 32-bit read).
-        if (offset + 3 >= m_data.size())
+        if (offset + sizeof(uint32_t) > m_data.size())
         {
-            throw std::out_of_range("Bios: Attempted to read out of bounds at offset " + std::to_string(offset));
+            throw std::out_of_range(std::format("Bios: Attempted out-of-bounds read at offset 0x{:08X}", offset));
         }
 
-        // Extract bytes in Little-Endian order (LSB first).
-        uint32_t b0 = m_data[offset + 0];
-        uint32_t b1 = m_data[offset + 1];
-        uint32_t b2 = m_data[offset + 2];
-        uint32_t b3 = m_data[offset + 3];
-
-        // Shift and combine into a single 32-bit value.
-        return b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
+        uint32_t value;
+        std::memcpy(&value, &m_data[offset], sizeof(uint32_t));
+        return value;
     }
 
     /**
-     * @brief Loads the BIOS binary file into memory with strict validation.
-     * 
-     * This follows RAII principles. We validate that the file exists and 
-     * that its size matches the expected 512KB (524,288 bytes) exactly.
-     * 
-     * @param path The filesystem path to the BIOS image.
-     * @throws std::runtime_error If the file cannot be opened, read, or has the wrong size.
+     * @brief Standard 32-bit write. Writing to the BIOS is generally ignored on the PS1.
+     */
+    void Bios::write32(uint32_t offset, uint32_t value)
+    {
+        // NO-OP: The BIOS is a Read-Only Memory.
+    }
+
+    /**
+     * @brief Loads the BIOS ROM binary from disk into the internal buffer.
      */
     void Bios::load(const std::string& path)
     {
-        // Open file in binary mode and jump to the end (std::ios::ate) to check size immediately.
+        // Open file and seek to the end to verify size.
         std::ifstream file(path, std::ios::binary | std::ios::ate);
         if (!file.is_open())
         {
-            throw std::runtime_error("Bios: Failed to open file at path: " + path);
+            throw std::runtime_error(std::format("Bios: Failed to open ROM image at path: {}", path));
         }
 
-        // The BIOS for PS1 must be exactly 512KB.
-        std::streamsize size = file.tellg();
+        const std::streamsize size = file.tellg();
         if (size != BIOS_SIZE)
         {
-            throw std::runtime_error(
-                "Bios: Incorrect file size. Expected 512KB, but got " + std::to_string(size) + " bytes.");
+            throw std::runtime_error(std::format("Bios: Incorrect ROM size. Expected {} bytes, but found {}.", BIOS_SIZE, size));
         }
 
-        // Reset file pointer to the beginning and read the data into the pre-allocated vector.
+        // Return to the beginning and read the entire ROM into memory.
         file.seekg(0, std::ios::beg);
         m_data.resize(BIOS_SIZE);
         if (!file.read(reinterpret_cast<char*>(m_data.data()), BIOS_SIZE))
         {
-            throw std::runtime_error("Bios: Failed to read data from file.");
+            throw std::runtime_error("Bios: Failed to read ROM data from disk.");
         }
     }
-}
+} // namespace slowstation::bus

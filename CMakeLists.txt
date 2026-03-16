@@ -15,6 +15,8 @@ set(SOURCES
     src/logger/Logger.cpp
         src/main.cpp
         include/cpu/Instruction.hpp
+        include/bus/Ram.hpp
+        src/bus/Ram.cpp
 )
 
 add_executable(SlowStation ${SOURCES})

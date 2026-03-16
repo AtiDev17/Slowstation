@@ -26,6 +26,13 @@ namespace slowstation::bus
         [[nodiscard]] virtual uint32_t read32(uint32_t offset) const = 0;
 
         /**
+         * @brief Writes a 32-bit word to a specific offset within the device.
+         * @param offset The relative byte offset from the start of the device's memory.
+         * @param value The 32-bit value to write.
+         */
+        virtual void write32(uint32_t offset, uint32_t value) = 0;
+
+        /**
          * @brief Returns the total size of this device in bytes.
          * @return Total memory-mapped size.
          */

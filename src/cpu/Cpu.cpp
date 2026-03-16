@@ -1,3 +1,4 @@
+#include "cpu/Instruction.hpp"
 #include "cpu/Cpu.hpp"
 #include "logger/ILogger.hpp"
 #include "bus/Interconnect.hpp"
@@ -30,16 +31,36 @@ namespace slowstation::cpu
     {
         // 1. Fetch
         // The interconnect handles the memory mapping (KSEG1 -> Physical BIOS)
-        const uint32_t instruction = m_interconnect->read32(m_pc);
+        const uint32_t fetched_opcode = m_interconnect->read32(m_pc);
 
         // 2. Log (Hexadecimal is key for debugging opcodes!)
-        m_logger.Info(std::format("Fetch 0x{:08X} at PC 0x{:08X}", instruction, m_pc));
+        m_logger.Info(std::format("Fetch 0x{:08X} at PC 0x{:08X}", fetched_opcode, m_pc));
 
         // 3. Increment PC (Instructions are 32-bit / 4-bytes)
         m_pc += 4;
 
         // 4. Decode & Execute (Next task: MIPS Instruction Set)
-        
-        return instruction;
+        switch (const auto instruction = Instruction(fetched_opcode); instruction.opcode())
+        {
+        case 0x0F:
+            setReg(instruction.rt(), instruction.imm() << 16);
+            break;
+        case 0x0D:
+            setReg(instruction.rt(), m_regs[instruction.rs()] | instruction.imm());
+            break;
+        default:
+            break;
+        }
+
+        return fetched_opcode;
+    }
+
+    void Cpu::setReg(const uint32_t index, const uint32_t value)
+    {
+        if (index != 0)
+        {
+            m_regs[index] = value;
+            m_logger.Trace(std::format("[CPU] Reg ${:02d} updated to 0x{:08X}", index, value));
+        }
     }
 }

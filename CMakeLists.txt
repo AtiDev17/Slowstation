@@ -13,6 +13,8 @@ set(SOURCES
     src/bus/Interconnect.cpp
     src/cpu/Cpu.cpp
     src/logger/Logger.cpp
+        src/main.cpp
+        include/cpu/Instruction.hpp
 )
 
 add_executable(SlowStation ${SOURCES})

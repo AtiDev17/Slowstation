@@ -38,6 +38,8 @@ namespace slowstation::cpu
          */
         uint32_t step();
 
+        void setReg(uint32_t index, uint32_t value);
+
     private:
         // The system bus dispatcher
         std::unique_ptr<bus::Interconnect> m_interconnect;

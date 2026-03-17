@@ -23,14 +23,40 @@ namespace slowstation::bus
     }
 
     /**
+     * @brief Standard 8-bit read from ROM.
+     */
+    uint8_t Bios::read8(const uint32_t offset) const
+    {
+        if (offset >= m_data.size())
+        {
+            throw std::out_of_range(std::format("Bios: Attempted out-of-bounds read8 at offset 0x{:08X}", offset));
+        }
+        return m_data[offset];
+    }
+
+    /**
+     * @brief Standard 16-bit read from ROM.
+     */
+    uint16_t Bios::read16(const uint32_t offset) const
+    {
+        if (offset + sizeof(uint16_t) > m_data.size())
+        {
+            throw std::out_of_range(std::format("Bios: Attempted out-of-bounds read16 at offset 0x{:08X}", offset));
+        }
+
+        uint16_t value;
+        std::memcpy(&value, &m_data[offset], sizeof(uint16_t));
+        return value;
+    }
+
+    /**
      * @brief Standard 32-bit read from ROM.
-     * Extracts 4 bytes into a 32-bit word using Little-Endian order.
      */
     uint32_t Bios::read32(const uint32_t offset) const
     {
         if (offset + sizeof(uint32_t) > m_data.size())
         {
-            throw std::out_of_range(std::format("Bios: Attempted out-of-bounds read at offset 0x{:08X}", offset));
+            throw std::out_of_range(std::format("Bios: Attempted out-of-bounds read32 at offset 0x{:08X}", offset));
         }
 
         uint32_t value;
@@ -39,7 +65,23 @@ namespace slowstation::bus
     }
 
     /**
-     * @brief Standard 32-bit write. Writing to the BIOS is generally ignored on the PS1.
+     * @brief Standard 8-bit write. (No-op).
+     */
+    void Bios::write8(uint32_t offset, uint8_t value)
+    {
+        // NO-OP: The BIOS is a Read-Only Memory.
+    }
+
+    /**
+     * @brief Standard 16-bit write. (No-op).
+     */
+    void Bios::write16(uint32_t offset, uint16_t value)
+    {
+        // NO-OP: The BIOS is a Read-Only Memory.
+    }
+
+    /**
+     * @brief Standard 32-bit write. (No-op).
      */
     void Bios::write32(uint32_t offset, uint32_t value)
     {

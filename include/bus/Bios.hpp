@@ -10,7 +10,7 @@ namespace slowstation::bus
      * @brief Represents the 512KB BIOS ROM of the PlayStation 1.
      *
      * This class handles loading the BIOS image from disk and provides
-     * 32-bit read access to its contents. It implements the IMemoryDevice interface.
+     * read access to its contents. It implements the IMemoryDevice interface.
      */
     class Bios : public IMemoryDevice
     {
@@ -23,6 +23,16 @@ namespace slowstation::bus
         explicit Bios(const std::string& path);
 
         /**
+         * @brief Standard 8-bit read from the BIOS ROM.
+         */
+        [[nodiscard]] uint8_t read8(uint32_t offset) const override;
+
+        /**
+         * @brief Standard 16-bit read from the BIOS ROM.
+         */
+        [[nodiscard]] uint16_t read16(uint32_t offset) const override;
+
+        /**
          * @brief Standard 32-bit read from the BIOS ROM.
          * @param offset The byte offset into the BIOS (0 to 512KB - 4).
          * @return A 32-bit word in Little-Endian format.
@@ -30,7 +40,17 @@ namespace slowstation::bus
         [[nodiscard]] uint32_t read32(uint32_t offset) const override;
 
         /**
-         * @brief Standard 32-bit write. Writing to the BIOS is generally ignored.
+         * @brief Standard 8-bit write. (No-op for ROM).
+         */
+        void write8(uint32_t offset, uint8_t value) override;
+
+        /**
+         * @brief Standard 16-bit write. (No-op for ROM).
+         */
+        void write16(uint32_t offset, uint16_t value) override;
+
+        /**
+         * @brief Standard 32-bit write. (No-op for ROM).
          * @param offset The byte offset.
          * @param value The value to write.
          */

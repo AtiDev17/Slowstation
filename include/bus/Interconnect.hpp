@@ -23,11 +23,31 @@ namespace slowstation::bus
         explicit Interconnect(std::unique_ptr<IMemoryDevice> bios, std::unique_ptr<IMemoryDevice> ram);
 
         /**
+         * @brief Reads an 8-bit byte from the specified virtual address.
+         */
+        [[nodiscard]] uint8_t read8(uint32_t address) const;
+
+        /**
+         * @brief Reads a 16-bit halfword from the specified virtual address.
+         */
+        [[nodiscard]] uint16_t read16(uint32_t address) const;
+
+        /**
          * @brief Reads a 32-bit word from the specified virtual address.
          * @param address The virtual address to read from.
          * @return The 32-bit word at the specified location.
          */
         [[nodiscard]] uint32_t read32(uint32_t address) const;
+
+        /**
+         * @brief Writes an 8-bit byte to the specified virtual address.
+         */
+        void write8(uint32_t address, uint8_t value) const;
+
+        /**
+         * @brief Writes a 16-bit halfword to the specified virtual address.
+         */
+        void write16(uint32_t address, uint16_t value) const;
 
         /**
          * @brief Writes a 32-bit word to the specified virtual address.

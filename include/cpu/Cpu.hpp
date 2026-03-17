@@ -89,6 +89,9 @@ namespace slowstation::cpu
          * Points to the next instruction to be fetched into the execution stream.
          */
         uint32_t m_next_pc{};
+
+        uint32_t m_hi{};
+        uint32_t m_lo{};
         
         /// Standard MIPS R3000A Reset Vector address.
         static constexpr uint32_t PC_RESET = 0xBFC00000;

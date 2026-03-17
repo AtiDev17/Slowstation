@@ -22,11 +22,31 @@ namespace slowstation::bus
         Ram();
 
         /**
+         * @brief Standard 8-bit read from RAM.
+         */
+        [[nodiscard]] uint8_t read8(uint32_t offset) const override;
+
+        /**
+         * @brief Standard 16-bit read from RAM.
+         */
+        [[nodiscard]] uint16_t read16(uint32_t offset) const override;
+
+        /**
          * @brief Standard 32-bit read from RAM.
          * @param offset The byte offset into RAM (0 to 2MB - 4).
          * @return A 32-bit word in Little-Endian format.
          */
         [[nodiscard]] uint32_t read32(uint32_t offset) const override;
+
+        /**
+         * @brief Standard 8-bit write to RAM.
+         */
+        void write8(uint32_t offset, uint8_t value) override;
+
+        /**
+         * @brief Standard 16-bit write to RAM.
+         */
+        void write16(uint32_t offset, uint16_t value) override;
 
         /**
          * @brief Standard 32-bit write to RAM.

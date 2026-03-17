@@ -3,6 +3,7 @@
 #include "bus/Ram.hpp"
 #include "bus/Interconnect.hpp"
 #include "cpu/Cpu.hpp"
+#include <format>
 
 using namespace slowstation::bus;
 using namespace slowstation::cpu;
@@ -37,7 +38,7 @@ int main(int argc, char** argv)
 
         // 6. Execution Loop: Run for a set number of cycles to observe BIOS behavior.
         // During the BIOS boot, we expect to see memory clearing and system initialization.
-        for (int i = 0; i < 1000; ++i)
+        for (int i = 0; i < 30000; ++i)
         {
             cpu.step();
         }
